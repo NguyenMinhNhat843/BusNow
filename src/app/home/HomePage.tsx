@@ -14,6 +14,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { vi } from "date-fns/locale";
 import { ForwardedRef } from "react";
 import locations from "../../data/location";
+import RoutePopulateItem from "@/component/RoutePopulateItem";
 
 const vehicle = [
   {
@@ -287,7 +288,14 @@ export default function HomePage() {
       {/* end: search bar */}
 
       {/* Tuyến đường phổ biến */}
-      <div></div>
+      <div className="max-w-5xl mx-auto py-8">
+        <p className="text-2xl pb-2">Tuyến đường phổ biến</p>
+        <div className="flex justify-between items-center gap-4">
+          {[1, 2, 3, 4].map((item, index) => (
+            <RoutePopulateItem key={index} />
+          ))}
+        </div>
+      </div>
       {/* end: Tuyến đường phổ biến */}
     </main>
   );
