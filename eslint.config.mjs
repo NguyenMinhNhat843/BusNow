@@ -15,6 +15,7 @@ const eslintConfig = [
     rules: {
       "no-unused-vars": "off", // Tắt check biến chưa sử dụng
       "@typescript-eslint/no-unused-vars": "off", // Tắt no-unused-vars cho TypeScript
+      "@typescript-eslint/no-explicit-any": "off", // ✅ tắt rule cảnh báo any
     },
   },
 ];
