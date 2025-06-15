@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -12,6 +12,7 @@ import {
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { vi } from "date-fns/locale";
+import { ForwardedRef } from "react";
 
 const vehicle = [
   {
@@ -59,6 +60,24 @@ const location = [
   },
 ];
 
+// Component tuỳ biến hiển thị ngày
+const CustomDateInput = forwardRef<
+  HTMLButtonElement,
+  { value?: string; onClick?: () => void }
+>(({ value, onClick }, ref) => (
+  <button
+    type="button"
+    className="text-left text-base"
+    onClick={onClick}
+    ref={ref}
+  >
+    {value || "Chọn ngày"}
+  </button>
+));
+
+// ✅ Thêm displayName để tránh warning của ESLint
+CustomDateInput.displayName = "CustomDateInput";
+
 export default function HomePage() {
   const [vehicleTab, setVehicleTab] = useState("Xe khách");
   const [locationSelected, setLocationSelected] = useState({
@@ -69,6 +88,7 @@ export default function HomePage() {
   const [isOpenMenuLocationTo, setIsOpenMenuLocationTo] = useState(false);
   const menuLocationFromRef = useRef<HTMLDivElement>(null);
   const menuLocationToRef = useRef<HTMLDivElement>(null);
+  const [startDate, setStartDate] = useState(new Date());
 
   // handle select location
   const handleSeletLocationFrom = (location: any) => {
@@ -128,7 +148,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="">
+    <main className="select-none">
       {/* SearchBar */}
       <div className="relative h-[400px]">
         <div className="absolute w-full h-full">
@@ -143,7 +163,7 @@ export default function HomePage() {
 
         {/* Overlay */}
         <div className="absolute w-full h-full flex flex-col items-center justify-center bg-black/50">
-          <h1 className="text-white text-2xl ">
+          <h1 className="text-white text-2xl pb-4">
             Đặt vé dễ dàng - nhanh chóng - tiện lợi
           </h1>
           <form
@@ -250,8 +270,11 @@ export default function HomePage() {
                   )}
                 </div>
 
+                {/* separation */}
+                <div className="border-l border-slate-300 h-10"></div>
+
                 {/* Ngày đi */}
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4 min-w-[200px] select-none">
                   <FontAwesomeIcon
                     icon={faCalendar}
                     className="text-3xl text-blue-600"
@@ -259,7 +282,14 @@ export default function HomePage() {
                   <div className="cursor-pointer">
                     <p className="text-sm text-slate-500">Ngày đi</p>
                     <div>
-                      <DatePicker locale={vi} className="" />
+                      <DatePicker
+                        selected={startDate}
+                        onChange={(date) => setStartDate(date as Date)}
+                        locale={vi}
+                        dateFormat={"eeee, dd/MM/yyyy"}
+                        className="border px-3 py-1 rounded-md"
+                        customInput={<CustomDateInput />}
+                      />
                     </div>
                   </div>
                 </div>
