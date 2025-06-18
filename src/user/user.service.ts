@@ -26,7 +26,7 @@ export class UserService {
 
   async findUserByEmail(email: string) {
     const user = await this.userRepo.findOneBy({ email: email });
-    return user ? true : false;
+    return user;
   }
 
   async getUserLimit(start: number, end: number) {
