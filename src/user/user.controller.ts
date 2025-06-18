@@ -8,8 +8,8 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  @Get('getUserLimit')
+  async getUserLimit(@Body('start') start: number, @Body('end') end: number) {
+    return await this.userService.getUserLimit(start, end);
   }
 }

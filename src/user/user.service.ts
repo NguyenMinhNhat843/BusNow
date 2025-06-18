@@ -24,24 +24,33 @@ export class UserService {
     return user;
   }
 
-  createUser(data: Partial<User>) {
-    const user = this.userRepo.create(data);
-    return this.userRepo.save(user);
+  async findUserByEmail(email: string) {
+    const user = await this.userRepo.findOneBy({ email: email });
+    return user ? user : null;
   }
 
-  findAll() {
-    return this.userRepo.find();
-  }
+  async getUserLimit(start: number, end: number) {
+    const total = await this.userRepo.count();
+    if (end < start) {
+      throw new BadRequestException('Điểm kết thúc phải lớn hơn điểm bắt đầu');
+    }
+    if (start > total) {
+      throw new BadRequestException('Điểm bắt đầu vượt quá tổng số người dùng');
+    }
 
-  findOne(id: number) {
-    return this.userRepo.findOneBy({ id });
-  }
+    const take = Math.min(end - start + 1, total - start);
+    const skip = start;
 
-  update(id: number, data: Partial<User>) {
-    return this.userRepo.update(id, data);
-  }
+    const user = await this.userRepo.find({
+      skip,
+      take,
+    });
 
-  remove(id: number) {
-    return this.userRepo.delete(id);
+    return {
+      total,
+      start,
+      end: start + take - 1,
+      users: user,
+    };
   }
 }
