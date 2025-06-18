@@ -4,10 +4,13 @@ import {
   Controller,
   Get,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { RegisterDTO } from './dto/RegisterDTO';
 import { AuthService } from './auth.service';
 import { LoginDTO } from './dto/LoginDTO';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -77,5 +80,18 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(@Body() body: { token: string; newPassword: string }) {
     return this.authService.resetPassword(body.token, body.newPassword);
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() {}
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  googleAuthCallback(@Req() req) {
+    return {
+      message: 'Đăng nhập thành công với Google!',
+      user: req.user, // user được gắn vào request bởi GoogleStrategy
+    };
   }
 }
