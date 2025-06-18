@@ -31,4 +31,10 @@ export class User {
 
   @Column({ nullable: true })
   provider: string;
+
+  @Column({ default: true, nullable: true })
+  isActive: boolean;
+
+  @Column({ default: 'user' })
+  role: string;
 }

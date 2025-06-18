@@ -26,7 +26,7 @@ export class UserService {
 
   async findUserByEmail(email: string) {
     const user = await this.userRepo.findOneBy({ email: email });
-    return user ? user : null;
+    return user ? true : false;
   }
 
   async getUserLimit(start: number, end: number) {
@@ -51,6 +51,28 @@ export class UserService {
       start,
       end: start + take - 1,
       users: user,
+    };
+  }
+
+  async toggleUserActiveStatus(
+    email: string,
+    status: boolean,
+  ): Promise<{ message: string }> {
+    const user = await this.userRepo.findOne({ where: { email } });
+
+    if (!user) {
+      throw new BadRequestException('Nguời dùng không tồn tại');
+    }
+
+    if (user.isActive === status) {
+      return { message: `tài khoản đã ${status ? 'kích hoạt' : 'vô hiệu'}` };
+    }
+
+    user.isActive = status;
+    await this.userRepo.save(user);
+
+    return {
+      message: `Tài khoản ${status ? 'kích hoạt lại' : 'vô hiệu'} thành công`,
     };
   }
 }

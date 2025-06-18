@@ -16,3 +16,9 @@ Nhập vào thanh tìm kiếm trên website: localhost:3000/auth/google
 
 - đăng nhập với facebook
 - đăng nhập bằng qr trên phone: vid yêu cầu phải làm thêm mobile app nên hiện chưa làm
+
+=============================== API USER ==============================
+
+- get user by email
+- get user limit with start + end index
+- deactive user, active user
