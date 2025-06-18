@@ -7,15 +7,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET || 'abc123',
+      ignoreExpiration: false,
+      secretOrKey:
+        process.env.JWT_SECRET_KEY !== undefined
+          ? process.env.JWT_SECRET_KEY
+          : 'abc123',
     });
   }
 
   validate(payload: any) {
-    // payload là object chứa thông tin người dùng đã được mã hóa trong JWT
-    return {
-      id: payload.id,
-      email: payload.email,
-    };
+    // payload sẽ chứa thông tin người dùng đã được mã hóa trong JWT
+    return { userId: payload.id, email: payload.email };
   }
 }
