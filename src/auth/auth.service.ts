@@ -17,6 +17,15 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  // find User by email
+  async findUserByEmail(email: string): Promise<User | null> {
+    const user = await this.userRepo.findOneBy({ email });
+    if (!user) {
+      return null;
+    }
+    return user;
+  }
+
   // register
   async register(data: RegisterDTO) {
     const existsUser = await this.userRepo.findOneBy({ email: data.email });

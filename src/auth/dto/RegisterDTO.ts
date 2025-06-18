@@ -27,4 +27,8 @@ export class RegisterDTO {
   @IsNumberString({}, { message: 'Số điện thoại chỉ được chứa số' })
   @Length(10, 10, { message: 'Số điện thoại phải có đúng 10 chữ số' })
   phoneNumber?: string;
+
+  // otp
+  @IsNotEmpty({ message: 'Mã OTP không được để trống' })
+  otp: string;
 }

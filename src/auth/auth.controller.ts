@@ -13,8 +13,29 @@ import { LoginDTO } from './dto/LoginDTO';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('send-otp-register')
+  async sendOtpRegister(@Body() body: { email: string }) {
+    // check email đã được đăng ký hay chưa
+    const isExistsUser = await this.authService.findUserByEmail(body.email);
+    if (isExistsUser) {
+      throw new BadRequestException('Email đã được đăng ký!!!');
+    }
+
+    const otp = this.authService.generrateOtp();
+    this.authService.saveOtp(body.email, otp);
+    await this.authService.sendOtp(body.email, otp);
+    return {
+      message:
+        'Vui lòng kiểm tra email và xác thực otp để hoàn thành đăng ký!!!',
+    };
+  }
+
   @Post('register')
-  register(@Body() body: RegisterDTO) {
+  async register(@Body() body: RegisterDTO) {
+    const isValid = this.authService.verifyOtp(body.email, body.otp);
+    if (!isValid) {
+      throw new BadRequestException('Mã OTP không hợp lệ hoặc đã hết hạn!');
+    }
     return this.authService.register(body);
   }
 
