@@ -6,6 +6,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { LoginDTO } from './dto/LoginDTO';
 import { JwtService } from '@nestjs/jwt';
+import * as nodemailer from 'nodemailer';
+import { Subject } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -58,5 +60,49 @@ export class AuthService {
     };
   }
 
-  // mail service
+  // ====================== mail service ======================
+  private transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_ADMIN_USERNAME,
+      pass: process.env.GMAIL_ADMIN_PASSWORD,
+    },
+  });
+
+  private otpStore = new Map<string, { otp: string; expiresAt: number }>();
+
+  generrateOtp() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
+  async sendOtp(toEmail: string, otp: string) {
+    const mailContent = {
+      from: process.env.GMAIL_ADMIN_USERNAME,
+      to: toEmail,
+      subject: 'Mã OTP xác thực gmail',
+      html: `<h1>Max OTP của bạn là: <b>${otp}</b></h1>`,
+    };
+
+    await this.transporter.sendMail(mailContent);
+  }
+
+  saveOtp(toEmail: string, otp: string) {
+    this.otpStore.set(toEmail, {
+      otp,
+      expiresAt: Date.now() + 5 * 60 * 1000, // OTP hợp lệ trong 5 phút
+    });
+  }
+
+  verifyOtp(toEmail: string, otp: string): boolean {
+    const record = this.otpStore.get(toEmail);
+    if (!record) {
+      throw new BadRequestException('Mã OTP không hợp lệ hoặc đã hết hạn');
+    }
+
+    const isValid = record.otp === otp && record.expiresAt > Date.now();
+    if (isValid) {
+      this.otpStore.delete(toEmail); // Xóa OTP sau khi xác thực thành công
+    }
+    return isValid;
+  }
 }
