@@ -17,6 +17,16 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  private transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_ADMIN_USERNAME,
+      pass: process.env.GMAIL_ADMIN_PASSWORD,
+    },
+  });
+
+  private otpStore = new Map<string, { otp: string; expiresAt: number }>();
+
   // find User by email
   async findUserByEmail(email: string): Promise<User | null> {
     const user = await this.userRepo.findOneBy({ email });
@@ -69,17 +79,42 @@ export class AuthService {
     };
   }
 
+  // send reset pasword link
+  async sendResetPasswordLink(email: string) {
+    const user = await this.userRepo.findOneBy({ email });
+    if (!user) {
+      throw new BadRequestException('Email chưa được đăng ký!');
+    }
+
+    const payload = { id: user.id, email: user.email };
+    const token = this.jwtService.sign(payload, { expiresIn: '5m' });
+    const resetLink = `http://localhost:3000/auth/reset-password?token=${token}`;
+
+    await this.transporter.sendMail({
+      from: process.env.GMAIL_ADMIN_USERNAME,
+      to: email,
+      subject: 'Yêu cầu đặt lại mật khẩu',
+      html: `<p>Bạn đã yêu cầu đặt lại mật khẩu. Nhấn vào <a href="${resetLink}">đây</a> để tiếp tục.</p>`,
+    });
+  }
+
+  // reset pasword logic
+  async resetPassword(token: string, newPassword: string) {
+    try {
+      const payload = this.jwtService.verify(token);
+      const user = await this.userRepo.findOneBy({ id: payload.id });
+      if (!user) throw new BadRequestException('Không tìm thấy người dùng');
+
+      user.password = await bcrypt.hash(newPassword, 10);
+      await this.userRepo.save(user);
+
+      return { message: 'Mật khẩu đã được cập nhật thành công' };
+    } catch (error) {
+      throw new BadRequestException('Token không hợp lệ hoặc đã hết hạn');
+    }
+  }
+
   // ====================== mail service ======================
-  private transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.GMAIL_ADMIN_USERNAME,
-      pass: process.env.GMAIL_ADMIN_PASSWORD,
-    },
-  });
-
-  private otpStore = new Map<string, { otp: string; expiresAt: number }>();
-
   generrateOtp() {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }

@@ -61,4 +61,21 @@ export class AuthController {
     }
     return { message: 'Xác thực OTP thành công!' };
   }
+
+  @Post('send-reset-password-link')
+  async sendReserPasswordLink(@Body() body: { email: string }) {
+    const { email } = body;
+
+    await this.authService.sendResetPasswordLink(email);
+    return {
+      message:
+        'Đường dẫn đặt lại mật khẩu đã được gửi đến email của bạn. Vui lòng kiểm tra email để tiếp tục.',
+    };
+  }
+
+  // AuthController
+  @Post('reset-password')
+  async resetPassword(@Body() body: { token: string; newPassword: string }) {
+    return this.authService.resetPassword(body.token, body.newPassword);
+  }
 }
