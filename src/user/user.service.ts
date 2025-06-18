@@ -2,6 +2,7 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
+import { CreateUserByGoogleDTO } from './dto/createUserByGoogleDTO';
 
 @Injectable()
 export class UserService {
@@ -9,6 +10,19 @@ export class UserService {
     @InjectRepository(User)
     private userRepo: Repository<User>,
   ) {}
+
+  async findOrcreateUserByGoogle(data: CreateUserByGoogleDTO) {
+    let user = await this.userRepo.findOneBy({ email: data.email });
+    if (!user) {
+      user = this.userRepo.create({
+        ...data,
+        provider: 'google',
+      });
+      await this.userRepo.save(user);
+    }
+
+    return user;
+  }
 
   createUser(data: Partial<User>) {
     const user = this.userRepo.create(data);
