@@ -1,11 +1,44 @@
 "use client";
 
+import { authApi } from "@/api/authApi";
+import { login } from "@/redux/slice/authSlice";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { toast } from "sonner";
 
 export default function LoginPage() {
+  const dispatch = useDispatch();
   const router = useRouter();
-  const handleSubmit = (e: any) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "minhnhat8843@gmail.com",
+    password: "Pass@123",
+  });
+
+  const handleOnchange = async (e: any) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
+    setIsLoading(true);
+    try {
+      const response = await authApi.login(formData.email, formData.password);
+      localStorage.setItem("accessToken", response.accessToken);
+      dispatch(login({ user: response.user, token: response.accessToken }));
+      toast.success("Đăng nhập thành công!");
+      router.push("/");
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại."
+      );
+    }
+    setIsLoading(false);
   };
 
   const handleNaviagteRegister = () => {
@@ -26,6 +59,8 @@ export default function LoginPage() {
             <input
               type="email"
               name="email"
+              value={formData.email}
+              onChange={handleOnchange}
               className="border border-gray-300 rounded-md py-1 px-2 w-full mt-2 mb-4"
               placeholder="Nhập email"
             />
@@ -35,6 +70,8 @@ export default function LoginPage() {
             <input
               type="password"
               name="password"
+              value={formData.password}
+              onChange={handleOnchange}
               className="border border-gray-300 rounded-md py-1 px-2 w-full mt-2 mb-4"
               placeholder="Nhập mật khẩu"
             />
@@ -65,6 +102,13 @@ export default function LoginPage() {
           </p>
         </form>
       </div>
+      {isLoading && (
+        <div>
+          <div className="absolute top-0 left-0 w-full h-full bg-black/40 flex justify-center items-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-yellow-400"></div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
