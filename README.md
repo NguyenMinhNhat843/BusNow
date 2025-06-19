@@ -1,4 +1,4 @@
-**\*\*** Chức năng Auth
+================================= API AUTH =====================
 
 - login
 - register: client bấm register --> call api sendotp qtoiws email ---> client nhập otp vào UI --> call api tạo user
@@ -12,6 +12,9 @@ Test API login with google:
 Nhập vào thanh tìm kiếm trên website: localhost:3000/auth/google
 --> Bởi vì api này ko phải REST api mà là dạng api redirect nên ko test trên postman được
 
+- logout - x
+- logout all device - x
+
 ====> Những thứ chưa làm được:
 
 - đăng nhập với facebook
@@ -19,6 +22,8 @@ Nhập vào thanh tìm kiếm trên website: localhost:3000/auth/google
 
 =============================== API USER ==============================
 
-- get user by email
-- get user limit with start + end index
-- deactive user, active user
+- get user by email (admin role)
+- get user limit with start + end index () (admin role)
+- deactive user, active user (admin role)
+- update profile me - x
+- delete user (admin role) - x

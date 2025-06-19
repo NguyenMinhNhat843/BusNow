@@ -3,6 +3,7 @@ import { TypeOrmDataSourceFactory, TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     UserModule,
     AuthModule,
+    S3Module,
   ],
   controllers: [],
   providers: [],

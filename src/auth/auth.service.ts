@@ -115,6 +115,28 @@ export class AuthService {
     }
   }
 
+  // changePassword
+  async changePassword(
+    email: string,
+    oldPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.userRepo.findOneBy({ email });
+    if (!user) {
+      throw new BadRequestException('Người dùng không tồn tại');
+    }
+
+    const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordMatch) {
+      throw new BadRequestException('Mật khẩu cũ không chính xác');
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await this.userRepo.save(user);
+
+    return { message: 'Mật khẩu đã được cập nhật thành công' };
+  }
+
   // ====================== mail service ======================
   generrateOtp() {
     return Math.floor(100000 + Math.random() * 900000).toString();

@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserByGoogleDTO } from './dto/createUserByGoogleDTO';
+import { updateProfileDTO } from './dto/updateProfileDTO';
+import { S3Service } from 'src/s3/s3.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepo: Repository<User>,
+    private s3Service: S3Service,
   ) {}
 
   async findOrcreateUserByGoogle(data: CreateUserByGoogleDTO) {
@@ -74,5 +77,40 @@ export class UserService {
     return {
       message: `Tài khoản ${status ? 'kích hoạt lại' : 'vô hiệu'} thành công`,
     };
+  }
+
+  async updateProfile(
+    body: updateProfileDTO,
+    email: string,
+    avatarUrl?: string,
+  ) {
+    const user = await this.userRepo.findOneBy({ email: email });
+    if (!user) {
+      throw new BadRequestException('Người dùng không tồn tại');
+    }
+
+    // Nếu có ảnh mới và user đã có avatar cũ → xóa file cũ trên S3
+    if (avatarUrl && user.avatar) {
+      // Cắt key từ URL cũ, ví dụ:
+      // https://busnow8843.s3.ap-southeast-1.amazonaws.com/user/avatars/abc123.jpg
+      const oldKey = user.avatar.split('.amazonaws.com/')[1]; // → user/avatars/abc123.jpg
+      if (oldKey) {
+        await this.s3Service.deleteFile(oldKey);
+      }
+
+      user.avatar = avatarUrl;
+    }
+
+    // Cập nhật các trường trong user
+    user.firstName = body.firstName || user.firstName;
+    user.lastName = body.lastName || user.lastName;
+    user.phoneNumber = body.phoneNumber || user.phoneNumber;
+    user.address = body.address || user.address;
+    user.birthDate = body.birthDate || user.birthDate;
+    // Nếu user chưa có avatar thêm path vào
+    user.avatar = avatarUrl || user.avatar;
+
+    await this.userRepo.save(user);
+    return { message: 'Cập nhật thông tin người dùng thành công' };
   }
 }

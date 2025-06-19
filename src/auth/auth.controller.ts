@@ -11,6 +11,7 @@ import { RegisterDTO } from './dto/RegisterDTO';
 import { AuthService } from './auth.service';
 import { LoginDTO } from './dto/LoginDTO';
 import { AuthGuard } from '@nestjs/passport';
+import { changePasswordDTO } from './dto/changePasswordDTO';
 
 @Controller('auth')
 export class AuthController {
@@ -80,6 +81,17 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(@Body() body: { token: string; newPassword: string }) {
     return this.authService.resetPassword(body.token, body.newPassword);
+  }
+
+  @Post('changePassword')
+  @UseGuards(AuthGuard('jwt')) // Sử dụng guard JWT để bảo vệ route này
+  async changePassword(@Body() body: changePasswordDTO, @Req() req: any) {
+    const email = req.user.email;
+    return this.authService.changePassword(
+      email as string,
+      body.oldPassword,
+      body.newPassword,
+    );
   }
 
   @Get('google')
