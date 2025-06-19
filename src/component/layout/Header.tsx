@@ -1,9 +1,10 @@
 "use client";
 
-import logo from "../../public/logo.webp";
+import logo from "../../../public/logo.webp";
 import avatarDefault from "../../public/avatar_default.png";
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const tabMenuUser = [
   {
@@ -21,7 +22,12 @@ const tabMenuUser = [
 ];
 
 export default function Header() {
+  const router = useRouter();
   const [isOpenMenuUser, setIsOpenMenuUser] = useState(false);
+
+  const handleNaviagteLogin = () => {
+    router.push("/dang-nhap");
+  };
 
   return (
     <div className="flex justify-between items-center bg-white shadow-lg h-[70px]">
@@ -35,7 +41,15 @@ export default function Header() {
         <p className="cursor-pointer hover:text-shadow-2xs">Đơn hàng của tôi</p>
         <p className="cursor-pointer">Mở bán vé</p>
         {/* menu user */}
-        <div
+        <div className="flex items-center gap-4">
+          <button
+            className="bg-yellow-400 rounded-lg py-2 px-4 cursor-pointer hover:bg-yellow-500"
+            onClick={handleNaviagteLogin}
+          >
+            Đăng nhập
+          </button>
+        </div>
+        {/* <div
           className="relative h-full flex items-center justify-between gap-2 cursor-pointer"
           onClick={() => setIsOpenMenuUser(!isOpenMenuUser)}
         >
@@ -60,7 +74,7 @@ export default function Header() {
               </ul>
             </div>
           )}
-        </div>
+        </div> */}
       </div>
     </div>
   );
