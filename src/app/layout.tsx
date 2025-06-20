@@ -28,9 +28,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Toaster position="top-right" richColors closeButton />
-        <HeaderWrapper />
-        <ReduxProvider>{children}</ReduxProvider>
+        <ReduxProvider>
+          <Toaster
+            position="top-right"
+            duration={3000}
+            richColors
+            closeButton
+          />
+          <HeaderWrapper />
+          {children}
+        </ReduxProvider>
       </body>
     </html>
   );

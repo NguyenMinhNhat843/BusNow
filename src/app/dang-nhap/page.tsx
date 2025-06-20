@@ -29,10 +29,14 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const response = await authApi.login(formData.email, formData.password);
-      localStorage.setItem("accessToken", response.accessToken);
-      dispatch(login({ user: response.user, token: response.accessToken }));
-      toast.success("Đăng nhập thành công!");
-      router.push("/");
+      if (response.status === 200) {
+        localStorage.setItem("user", JSON.stringify(response.user));
+        dispatch(login({ user: response.user }));
+        toast.success("Đăng nhập thành công!", {
+          duration: 2000,
+        });
+        router.push("/");
+      }
     } catch (error: any) {
       toast.error(
         error.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại."
