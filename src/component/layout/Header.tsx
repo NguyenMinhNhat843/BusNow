@@ -16,7 +16,7 @@ import { toast } from "sonner";
 const tabMenuUser = [
   {
     name: "Thông tin cá nhân",
-    link: "/user/profile",
+    link: "/thong-tin-ca-nhan",
   },
   {
     name: "Đổi mật khẩu",
@@ -88,7 +88,13 @@ export default function Header() {
                   <div className="absolute top-[calc(100%+12px)] right-0 rounded-lg bg-white shadow-2xl shadow-black w-[200px] z-50">
                     <ul className="py-4">
                       {tabMenuUser.map((item, index) => (
-                        <li key={index} className="p-2 hover:bg-slate-100">
+                        <li
+                          key={index}
+                          className="p-2 hover:bg-slate-100"
+                          onClick={() => {
+                            router.push(item.link);
+                          }}
+                        >
                           {item.name}
                         </li>
                       ))}
